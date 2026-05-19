@@ -4,7 +4,7 @@ from slowapi.errors import RateLimitExceeded
 
 from database import Base, engine
 from limiter import limiter
-from routers import cards, suggestions
+from routers import cards, ebay_notifications, suggestions
 from seed import seed
 
 Base.metadata.create_all(bind=engine)
@@ -16,6 +16,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(cards.router)
 app.include_router(suggestions.router)
+app.include_router(ebay_notifications.router)
 
 
 @app.get("/")

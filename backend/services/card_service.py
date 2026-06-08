@@ -98,6 +98,7 @@ def get_card_price(query: str) -> dict:
             "set": card.set_code,
             "rarity": card.rarity,
             "variant": card.variant,
+            "image_url": card.image_url,
             "prices": prices,
             "currency": "USD",
         },

@@ -94,6 +94,7 @@ def get_market_suggestion(card_query: str) -> dict:
             "card_name": card.name,
             "card_number": card.card_number,
             "rarity": card.rarity,
+            "image_url": card.image_url,
             "avg_price_usd": round(avg_price, 2),
         },
     }

@@ -11,7 +11,14 @@ from services.sheets_service import CardRecord
 
 load_dotenv()
 
-_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY", ""))
+_client: genai.Client | None = None
+
+
+def _get_client() -> genai.Client:
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY", ""))
+    return _client
 
 _PROMPT_TEMPLATE = """I'm a One Piece TCG collector trying to decide what to do with a card I own. Should I hold this card or sell it, and why?
 
@@ -45,7 +52,7 @@ def _ask_gemini(card: CardRecord, prices: dict) -> dict:
         avg_price=avg_price,
         prices=json.dumps(prices),
     )
-    response = _client.models.generate_content(
+    response = _get_client().models.generate_content(
         model="gemini-2.5-flash-lite",
         contents=prompt,
         config=types.GenerateContentConfig(response_mime_type="application/json"),
@@ -94,6 +101,7 @@ def get_market_suggestion(card_query: str) -> dict:
             "card_name": card.name,
             "card_number": card.card_number,
             "rarity": card.rarity,
+            "image_url": card.image_url,
             "avg_price_usd": round(avg_price, 2),
         },
     }

@@ -38,9 +38,16 @@ def _get_token() -> str:
     return _token_cache["token"]
 
 
-def fetch_ebay_prices(card_number: str, card_name: str) -> dict[str, float] | None:
+_VARIANT_KEYWORDS: dict[str, str] = {
+    "Manga Alternate Art": "manga alternate art",
+    "Parallel": "parallel",
+}
+
+
+def fetch_ebay_prices(card_number: str, card_name: str, variant: str = "Standard") -> dict[str, float] | None:
     token = _get_token()
-    query = f"{card_number} One Piece card"
+    variant_kw = _VARIANT_KEYWORDS.get(variant, "")
+    query = f"{card_number} {card_name} One Piece {variant_kw}".strip()
 
     response = httpx.get(
         _SEARCH_URL,

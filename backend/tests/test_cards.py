@@ -1,10 +1,10 @@
 from unittest.mock import patch
 
-MOCK_EBAY_PRICES = {"eBay": 2480.00}
+MOCK_PRICES = {"JustTCG": 2480.00}
 
 
 def test_price_lookup_by_card_number(client):
-    with patch("services.card_service.fetch_ebay_prices", return_value=MOCK_EBAY_PRICES):
+    with patch("services.card_service.fetch_justtcg_price", return_value=MOCK_PRICES):
         response = client.get("/cards/price?q=OP06-118")
     assert response.status_code == 200
     body = response.json()
@@ -13,38 +13,37 @@ def test_price_lookup_by_card_number(client):
     assert body["data"]["card_number"] == "OP06-118"
     assert body["data"]["set"] == "OP-06"
     assert body["data"]["currency"] == "USD"
-    assert body["data"]["prices"] == MOCK_EBAY_PRICES
+    assert body["data"]["prices"] == MOCK_PRICES
 
 
 def test_price_lookup_by_character_name(client):
-    with patch("services.card_service.fetch_ebay_prices", return_value={"eBay": 1775.00}):
+    with patch("services.card_service.fetch_justtcg_price", return_value={"JustTCG": 1775.00}):
         response = client.get("/cards/price?q=Luffy")
     body = response.json()
     assert body["status"] == "success"
     assert body["data"]["card_name"] == "Monkey D. Luffy"
-    assert body["data"]["prices"]["eBay"] == 1775.00
+    assert body["data"]["prices"]["JustTCG"] == 1775.00
 
 
 def test_price_lookup_by_partial_name(client):
-    with patch("services.card_service.fetch_ebay_prices", return_value={"eBay": 335.00}):
+    with patch("services.card_service.fetch_justtcg_price", return_value={"JustTCG": 335.00}):
         response = client.get("/cards/price?q=Nami")
     body = response.json()
     assert body["status"] == "success"
     assert body["data"]["card_number"] == "OP01-082"
 
 
-def test_price_lookup_falls_back_to_db_when_ebay_fails(client):
-    with patch("services.card_service.fetch_ebay_prices", side_effect=Exception("eBay down")):
+def test_price_lookup_falls_back_to_sheet_when_justtcg_fails(client):
+    with patch("services.card_service.fetch_justtcg_price", side_effect=Exception("API down")):
         response = client.get("/cards/price?q=OP06-118")
     body = response.json()
-    # Falls back to seeded DB prices
     assert body["status"] == "success"
-    assert "eBay" in body["data"]["prices"] or "TCGPlayer" in body["data"]["prices"]
+    assert "TCGPlayer_Market" in body["data"]["prices"] or "TCGPlayer_Low" in body["data"]["prices"]
 
 
-def test_price_lookup_unavailable_when_ebay_and_db_both_fail(client):
-    with patch("services.card_service.fetch_ebay_prices", return_value=None), \
-         patch("services.card_service._db_prices", return_value=None):
+def test_price_lookup_unavailable_when_justtcg_and_sheet_both_fail(client):
+    with patch("services.card_service.fetch_justtcg_price", return_value=None), \
+         patch("services.card_service._sheet_prices", return_value=None):
         response = client.get("/cards/price?q=OP06-118")
     body = response.json()
     assert body["status"] == "price_unavailable"
@@ -65,8 +64,25 @@ def test_price_lookup_multiple_matches(client):
     assert len(body["data"]) > 1
 
 
-def test_price_lookup_correct_rarity(client):
-    with patch("services.card_service.fetch_ebay_prices", return_value=MOCK_EBAY_PRICES):
+def test_rarity_alias_super_rare(client):
+    with patch("services.card_service.fetch_justtcg_price", return_value=MOCK_PRICES):
+        response = client.get("/cards/price?q=zoro+super+rare")
+    body = response.json()
+    assert body["status"] == "success"
+    assert body["data"]["rarity"] == "SR"
+
+
+def test_rarity_alias_secret_rare(client):
+    with patch("services.card_service.fetch_justtcg_price", return_value=MOCK_PRICES):
+        response = client.get("/cards/price?q=boa+secret+rare")
+    body = response.json()
+    assert body["status"] == "success"
+    assert body["data"]["rarity"] == "SEC"
+
+
+def test_price_response_includes_variant(client):
+    with patch("services.card_service.fetch_justtcg_price", return_value=MOCK_PRICES):
         response = client.get("/cards/price?q=OP06-118")
     body = response.json()
-    assert body["data"]["rarity"] == "manga_rare"
+    assert "variant" in body["data"]
+    assert body["data"]["variant"] == "Manga Alternate Art"

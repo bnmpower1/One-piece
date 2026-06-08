@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pytest
+httpx
+google-genai
+python-dotenv
+slowapi
+gspread
+google-auth

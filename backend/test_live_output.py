@@ -61,6 +61,7 @@ def run(query: str):
     print(f"  Color:     {card.color}")
     print(f"  Subtypes:  {card.subtypes}")
     print(f"  Variant:   {card.variant}")
+    print(f"  Image URL: {card.image_url or '(none)'}")
     print(f"  Sheet price (market): {card.price_market}")
     print(f"  Sheet price (low):    {card.price_low}")
 

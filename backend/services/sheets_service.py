@@ -30,6 +30,7 @@ class CardRecord:
     subtypes: str
     price_market: float | None
     price_low: float | None
+    image_url: str = ""
 
 
 def _to_float(val) -> float | None:
@@ -56,6 +57,7 @@ def _load_from_sheet() -> list[CardRecord]:
             subtypes=r["subtypes"],
             price_market=_to_float(r.get("price_market_nm")),
             price_low=_to_float(r.get("price_low_nm")),
+            image_url=r.get("image_url", ""),
         )
         for r in ws.get_all_records()
     ]

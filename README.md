@@ -69,9 +69,16 @@ One-piece/
 
 Run the tests:
 
+**Mac / Linux**
 ```bash
 cd backend
 python3 -m pytest tests/ -v
+```
+
+**Windows**
+```bash
+cd backend
+python -m pytest tests/ -v
 ```
 
 All tests mock external APIs (Google Sheets, eBay, Gemini) — no real credentials needed.
@@ -97,16 +104,21 @@ cd One-piece
 
 ### 2. Backend setup
 
+**Mac / Linux**
 ```bash
 cd backend
 pip install -r requirements.txt
-```
-
-Copy the environment template and fill in your keys:
-
-```bash
 cp .env.example .env
 ```
+
+**Windows**
+```bash
+cd backend
+pip install -r requirements.txt
+copy .env.example .env
+```
+
+Fill in your keys in `.env`:
 
 | Variable | Description |
 |---|---|
@@ -136,6 +148,8 @@ npm run dev
 App available at `http://localhost:5173`
 
 > The frontend proxies all `/api` requests to the backend automatically during development.
+>
+> **Windows note:** If `python` is not recognised, try `py` instead (e.g. `py -m pytest tests/ -v`).
 
 ---
 

@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 
 from services.card_service import _sheet_prices, find_card
-from services.justtcg_service import fetch_justtcg_price
+from services.ebay_service import fetch_ebay_prices
 from services.sheets_service import CardRecord
 
 load_dotenv()
@@ -77,7 +77,7 @@ def get_market_suggestion(card_query: str) -> dict:
     card = matches[0]
 
     try:
-        prices = fetch_justtcg_price(card)
+        prices = fetch_ebay_prices(card.card_number, card.name, card.variant)
     except Exception:
         prices = None
 

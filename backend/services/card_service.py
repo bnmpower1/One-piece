@@ -1,5 +1,5 @@
+from services.ebay_service import fetch_ebay_prices
 from services.sheets_service import CardRecord, get_cards
-from services.justtcg_service import fetch_justtcg_price
 
 # Natural-language phrases → sheet field values (applied before tokenising)
 _ALIASES: dict[str, str] = {
@@ -84,7 +84,7 @@ def get_card_price(query: str) -> dict:
     card = matches[0]
 
     try:
-        prices = fetch_justtcg_price(card)
+        prices = fetch_ebay_prices(card.card_number, card.name, card.variant)
     except Exception:
         prices = None
 

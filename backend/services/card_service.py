@@ -21,6 +21,8 @@ def _prefer_standard(cards: list[CardRecord]) -> list[CardRecord]:
 
 def find_card(query: str) -> tuple[str, list[CardRecord]]:
     q = query.strip().lower()
+    if not q:
+        return "not_found", []
     for phrase, code in _ALIASES.items():
         q = q.replace(phrase, code)
     tokens = q.split()
@@ -34,13 +36,15 @@ def find_card(query: str) -> tuple[str, list[CardRecord]]:
         fields = (c.name, c.set_code, c.subtypes, c.variant, c.color, c.rarity, c.card_type)
         field_values = [f.lower() for f in fields]
         combined = " ".join(field_values)
+        # Single-char query: exact field match only — prevents "r" matching "character"
+        if len(q) == 1:
+            return q in field_values
         # Single phrase: substring match across any field
         if any(q in f for f in field_values):
             return True
         # Multi-word query: every token must appear somewhere in the card's fields
         if len(tokens) > 1:
             def _token_matches(t: str) -> bool:
-                # Single-char tokens (e.g. rarity "L") must equal a whole field — not a substring
                 if len(t) == 1:
                     return t in field_values
                 return t in combined

@@ -92,6 +92,9 @@ def get_market_suggestion(card_query: str) -> dict:
     except Exception:
         return {"status": "insufficient_data", "message": "Could not generate suggestion."}
 
+    if gemini_result.get("suggestion") not in ("buy", "hold", "sell"):
+        return {"status": "insufficient_data", "message": "Could not generate suggestion."}
+
     avg_price = sum(prices.values()) / len(prices)
     return {
         "status": "success",

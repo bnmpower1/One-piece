@@ -44,7 +44,7 @@ def test_suggestion_nami_hold(client):
 
 def test_suggestion_includes_price_info(client):
     with patch("services.suggestion_service._ask_gemini", return_value=MOCK_BUY), \
-         patch("services.suggestion_service.fetch_justtcg_price", side_effect=Exception("no creds")):
+         patch("services.suggestion_service.fetch_ebay_prices", side_effect=Exception("no creds")):
         response = client.get("/cards/suggest?q=OP06-118")
     body = response.json()
     assert body["status"] == "success"
